@@ -1,64 +1,89 @@
-stage('Build') {
-    steps {
-        // Use Maven to build your code
-        sh 'mvn clean package'
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Starting Build Stage'
+                // Use Maven to build the code
+                sh 'mvn clean package'
+                echo 'Build Stage Completed'
+            }
+        }
+
+        stage('Unit and Integration Tests') {
+            steps {
+                echo 'Starting Unit and Integration Tests Stage'
+                // Execute unit and integration tests
+                sh 'mvn test'
+                echo 'Unit and Integration Tests Stage Completed'
+            }
+        }
+
+        stage('Code Analysis') {
+            steps {
+                echo 'Starting Code Analysis Stage'
+                // Integrate with SonarQube for code analysis
+                // Example: sh 'sonar-scanner'
+                echo 'Code Analysis Stage Completed'
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                echo 'Starting Security Scan Stage'
+                // Integrate with OWASP ZAP for security scanning
+                // Example: sh 'zap-baseline.py -t http://your-app-url'
+                echo 'Security Scan Stage Completed'
+            }
+        }
+
+        stage('Deploy to Staging') {
+            steps {
+                echo 'Starting Deploy to Staging Stage'
+                // Use AWS CLI to deploy to staging environment
+                // Example: sh 'aws ec2 copy your-app.jar to staging-instance:/path'
+                echo 'Deploy to Staging Stage Completed'
+            }
+        }
+
+        stage('Integration Tests on Staging') {
+            steps {
+                echo 'Starting Integration Tests on Staging Stage'
+                // Execute integration tests on the staging environment
+                // Example: sh 'curl http://staging-url/integration-tests'
+                echo 'Integration Tests on Staging Stage Completed'
+            }
+        }
+
+        stage('Deploy to Production') {
+            steps {
+                echo 'Starting Deploy to Production Stage'
+                // Use AWS CLI to deploy to production environment
+                // Example: sh 'aws ec2 copy your-app.jar to production-instance:/path'
+                echo 'Deploy to Production Stage Completed'
+            }
+        }
     }
-}
 
-stage('Unit and Integration Tests') {
-    steps {
-        // Use your preferred testing frameworks (e.g., JUnit, Selenium) for unit and integration tests
-        sh 'mvn test'
-    }
-}
+    post {
+        always {
+            echo 'Pipeline Execution Finished'
+            // This block will be executed after every stage
+            // You can include cleanup or notification tasks here
+        }
 
-stage('Code Analysis') {
-    steps {
-        // Integrate your selected code analysis tool (e.g., SonarQube)
-        // Provide the necessary configurations for the tool
+        success {
+            echo 'Pipeline Succeeded'
+            // This block will be executed if the pipeline succeeds
+            // You can include notification tasks here
+        }
 
-        // Example for integrating SonarQube:
-        withSonarQubeEnv('SonarQube') {
-            sh 'mvn sonar:sonar'
+        failure {
+            echo 'Pipeline Failed'
+            // This block will be executed if the pipeline fails
+            // You can include notification tasks here
         }
     }
 }
 
-stage('Security Scan') {
-    steps {
-        // Integrate your selected security scanning tool
-        // Provide the necessary configurations for the tool
-
-        // Example for integrating OWASP ZAP (Zed Attack Proxy):
-        sh 'zap-cli --zap-url http://localhost -p 8080 -t http://your_app_url -f openapi -r zap-report.html'
-    }
-}
-
-stage('Deploy to Staging') {
-    steps {
-        // Use a deployment tool or script to deploy to AWS EC2
-        // Provide necessary configurations and authentication
-
-        // Example for deploying to AWS using AWS CLI:
-        sh 'aws s3 sync . s3://your-staging-bucket'
-    }
-}
-
-stage('Integration Tests on Staging') {
-    steps {
-        // Run integration tests on the staging environment
-
-        // Example for running integration tests using a testing framework:
-        sh 'mvn verify'
-    }
-}
-
-stage('Deploy to Production') {
-    steps {
-        // Use a deployment tool or script to deploy to production AWS EC2
-        // Provide necessary configurations and authentication
-
-        // Example for deploying to AWS using AWS CLI:
-        sh 'aws s3 sync . s3://your-production-bucket'
-    }
-}
